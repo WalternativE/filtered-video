@@ -1,0 +1,138 @@
+<link rel="import" href="../paper-button/paper-button.html" />
+<link rel="import" href="../paper-input/paper-input.html" />
+<link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html" />
+
+<link rel="import" href="../polymer/polymer.html" />
+
+<!--
+`filtered-video`
+university exercise
+
+@demo demo/index.html 
+-->
+
+<dom-module id="filtered-video">
+  <style include="iron-flex">
+    :host {
+      display: block;
+    }
+  </style>
+
+  <template>
+    <div class="layout vertical">
+      <paper-input label="Choose a video file" type="file" accept="video/*" on-change="handleInputChange"></paper-input>
+      <video id="player" on-play="handlePlay" style="display: none"></video>
+      <canvas id="backing" class="flex"></canvas>
+      <canvas id="mirror" class="flex"></canvas>
+
+      <div class="layout vertical">
+        <div class="layout horizontal">
+          <paper-input label="val"></paper-input>
+          <paper-input label="val"></paper-input>
+          <paper-input label="val"></paper-input>
+          <paper-input label="val"></paper-input>
+          <paper-input label="val"></paper-input>
+        </div>
+        <div class="layout horizontal">
+          <paper-input label="val"></paper-input>
+          <paper-input label="val"></paper-input>
+          <paper-input label="val"></paper-input>
+          <paper-input label="val"></paper-input>
+          <paper-input label="val"></paper-input>
+        </div>
+        <div class="layout horizontal">
+          <paper-input label="val"></paper-input>
+          <paper-input label="val"></paper-input>
+          <paper-input label="val"></paper-input>
+          <paper-input label="val"></paper-input>
+          <paper-input label="val"></paper-input>
+        </div>
+        <div class="layout horizontal">
+          <paper-input label="val"></paper-input>
+          <paper-input label="val"></paper-input>
+          <paper-input label="val"></paper-input>
+          <paper-input label="val"></paper-input>
+          <paper-input label="val"></paper-input>
+        </div>
+        <div class="layout horizontal">
+          <paper-input label="val"></paper-input>
+          <paper-input label="val"></paper-input>
+          <paper-input label="val"></paper-input>
+          <paper-input label="val"></paper-input>
+          <paper-input label="val"></paper-input>
+        </div>
+        <paper-input label="Scale"></paper-input>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'filtered-video',
+
+      handleTap: function() {
+        console.log("Tap handel event!")
+      },
+
+      handleInputChange: function(event) {
+        let file;
+        if (event.srcElement) {
+          file = event.srcElement.files[0];
+        } else if (event.target) {
+          file = event.target.files[0];
+        }
+
+        let objectURL = URL.createObjectURL(file);
+
+        let source = document.createElement('source');
+        source.src = objectURL;
+        source.type = file.type;
+
+        this.$.player.appendChild(source);
+        this.$.player.play();
+      },
+
+      handlePlay: function() {
+        console.log("play!");
+
+        let video = this.$.player;
+
+        let contextBacking = this.$.backing.getContext('2d');
+        let widthBacking = this.$.backing.clientWidth;
+        let heightBacking = this.$.backing.clientHeight;
+
+        let _this = this;
+        this.draw(this, video, contextBacking, widthBacking, heightBacking);
+      },
+
+      draw: function(localContext, video, context, width, height) {
+          if(video.paused || video.ended) {
+            console.log('video paused or ended');
+            return false;
+          }
+          
+          context.drawImage(video, 0, 0, width, height);
+
+          let rawImage = context.getImageData(0, 0, width, height);
+          let imageData = rawImage.data;
+
+          for(let i = 0; i <imageData.length; i += 4) {
+            let r = imageData[i];
+            let g = imageData[i+1];
+            let b = imageData[i+2];
+            let brightness = (3*r + 4*g + b) >>> 3;
+
+            imageData[i] = brightness;
+            imageData[i+1] = brightness;
+            imageData[i+2] = brightness;
+          }
+          rawImage.data = imageData;
+
+          let contextMirror = localContext.$.mirror.getContext('2d');
+          contextMirror.putImageData(rawImage, 0, 0);
+
+          setTimeout(localContext.draw, 20, localContext, video, context, width, height);
+      }
+    });
+  </script>
+</dom-module>
