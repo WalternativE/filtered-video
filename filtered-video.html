@@ -116,26 +116,27 @@ university exercise
           
           context.drawImage(video, 0, 0, width, height);
 
-          let rawImage = context.getImageData(0, 0, width, height);
-          let imageData = rawImage.data;
+          // let rawImage = context.getImageData(0, 0, width, height);
+          // let imageData = rawImage.data;
 
-          for(let i = 0; i <imageData.length; i += 4) {
-            let r = imageData[i];
-            let g = imageData[i+1];
-            let b = imageData[i+2];
-            let brightness = (3*r + 4*g + b) >>> 3;
+          // for(let i = 0; i <imageData.length; i += 4) {
+          //   let r = imageData[i];
+          //   let g = imageData[i+1];
+          //   let b = imageData[i+2];
+          //   let brightness = (3*r + 4*g + b) >>> 3;
 
-            imageData[i] = brightness;
-            imageData[i+1] = brightness;
-            imageData[i+2] = brightness;
-          }
-          rawImage.data = imageData;
+          //   imageData[i] = brightness;
+          //   imageData[i+1] = brightness;
+          //   imageData[i+2] = brightness;
+          // }
+          // rawImage.data = imageData;
 
-          let contextMirror = localContext.$.mirror.getContext('2d');
-          contextMirror.putImageData(rawImage, 0, 0);
+          // let contextMirror = localContext.$.mirror.getContext('2d');
+          // contextMirror.putImageData(rawImage, 0, 0);
+
+          localContext.applyFilter();
 
           setTimeout(localContext.draw, 20, localContext, video, context, width, height);
-          localContext.applyFilter();
       },
 
       applyFilter: function() {        
@@ -155,25 +156,56 @@ university exercise
         let kernelData  = [ [1 / 9, 1 / 9, 1 / 9],
                             [1 / 9, 1 / 9, 1 / 9],
                             [1 / 9, 1 / 9, 1 / 9] ];
-        
+
+        let outputBuffer = [];        
 
         for (let row = 0 + kernelOffset; row < height - 1 - kernelOffset; row++) {
           for (let column = 0 + kernelOffset; column < width - 1 - kernelOffset; column++) {
 
-              for (let channel = 0; channel < 4; channel++) {
+            for (let channel = 0; channel < 4; channel++) {
 
-                let currentIndex = (row * width) + (column * 4) + channel;
+              let currentIndex = (row * width) + (column * 4) + channel;
 
-                let sum = 0;
-                for (let i = 0; i < kernelData.length; i++) {
-                  for (let j = 0; j < kernelData[i].length; j++) {
+              let oneUpIndex = currentIndex - (width * 4);
+              let oneDownIndex = currentIndex + (width * 4);
 
-                  }
+              let indices = [oneUpIndex, currentIndex, oneDownIndex];
+
+              let sum = 0;
+              for (let i = 0; i < kernelData.length; i++) {
+
+                let index = indices[i];
+
+                for (let j = 0; j < kernelData[i].length; j++) {
+                  sum += sourceData[index - 4] * kernelData[i][j];
+                  console.log(sum);
+
+                  sum += sourceData[index] * kernelData[i][j];
+                  console.log(sum);
+
+                  sum += sourceData[index + 4] * kernelData[i][j];
+                  console.log(sum);
+
+                  prompt();
                 }
 
+                outputBuffer.push(this.clip(sum));
               }
+            }
+
           }
         }
+
+        for (let i = 0 + kernelOffset; i < outputBuffer.length; i++) {
+          destinationData[i] = outputBuffer[i];
+        }
+
+        destinationImage.data = destinationData;
+        destinationContext.putImageData(destinationImage, 0, 0);
+      },
+
+      clip: function(value) {
+        return Math.floor(Math.min(Math.max(value, 0), 255));
       }
     });
   </script>
