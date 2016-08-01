@@ -1,8 +1,8 @@
-<link rel="import" href="../paper-button/paper-button.html" />
-<link rel="import" href="../paper-input/paper-input.html" />
-<link rel="import" href="../iron-flex-layout/iron-flex-layout-classes.html" />
+<link rel="import" href="/bower_components/paper-button/paper-button.html" />
+<link rel="import" href="/bower_components/paper-input/paper-input.html" />
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html" />
 
-<link rel="import" href="../polymer/polymer.html" />
+<link rel="import" href="/bower_components/polymer/polymer.html" />
 
 <!--
 `filtered-video`
@@ -154,45 +154,41 @@ university exercise
 
         let kernelOffset = 1;
         let kernelData  = [ [1 / 9, 1 / 9, 1 / 9],
-                            [1 / 9, 1 / 9, 1 / 9],
+                            [1 / 9, 1 / 9 , 1 / 9],
                             [1 / 9, 1 / 9, 1 / 9] ];
 
-        let outputBuffer = [];        
+        let outputBuffer = [];
 
         for (let row = 0 + kernelOffset; row < height - 1 - kernelOffset; row++) {
           for (let column = 0 + kernelOffset; column < width - 1 - kernelOffset; column++) {
 
-            for (let channel = 0; channel < 4; channel++) {
+            for (let channel = 0; channel < 3; channel++) {
 
               let currentIndex = (row * width) + (column * 4) + channel;
 
-              let oneUpIndex = currentIndex - (width * 4);
-              let oneDownIndex = currentIndex + (width * 4);
+              let oneUpIndex = currentIndex - width;
+              let oneDownIndex = currentIndex + width;
 
               let indices = [oneUpIndex, currentIndex, oneDownIndex];
 
               let sum = 0;
-              for (let i = 0; i < kernelData.length; i++) {
+              let i = 0;
 
-                let index = indices[i];
+              let len = kernelData[i].length;
+              for (let j = 0; j < len; j++) {
+                index = indices[i];
 
-                for (let j = 0; j < kernelData[i].length; j++) {
-                  sum += sourceData[index - 4] * kernelData[i][j];
-                  console.log(sum);
+                sum += sourceData[index - 4] * kernelData[i][j];
+                sum += sourceData[index] * kernelData[i][j];
+                sum += sourceData[index + 4] * kernelData[i][j];
 
-                  sum += sourceData[index] * kernelData[i][j];
-                  console.log(sum);
-
-                  sum += sourceData[index + 4] * kernelData[i][j];
-                  console.log(sum);
-
-                  prompt();
-                }
-
-                outputBuffer.push(this.clip(sum));
+                i++;
               }
+
+              outputBuffer.push(this.clip(sum));
             }
 
+            outputBuffer.push(0xff);
           }
         }
 
