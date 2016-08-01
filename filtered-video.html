@@ -70,6 +70,8 @@ university exercise
     Polymer({
       is: 'filtered-video',
 
+      blaCounter: 0,
+
       handleTap: function() {
         console.log("Tap handel event!")
       },
@@ -102,6 +104,7 @@ university exercise
         let heightBacking = this.$.backing.clientHeight;
 
         let _this = this;
+
         this.draw(this, video, contextBacking, widthBacking, heightBacking);
       },
 
@@ -132,6 +135,45 @@ university exercise
           contextMirror.putImageData(rawImage, 0, 0);
 
           setTimeout(localContext.draw, 20, localContext, video, context, width, height);
+          localContext.applyFilter();
+      },
+
+      applyFilter: function() {        
+        let sourceContext = this.$.backing.getContext('2d');
+        let destinationContext = this.$.mirror.getContext('2d');
+
+        let width = this.$.backing.clientWidth;
+        let height = this.$.backing.clientHeight;
+
+        let sourceImage = sourceContext.getImageData(0, 0, width, height);
+        let destinationImage = sourceContext.getImageData(0, 0, width, height);
+
+        let sourceData = sourceImage.data;
+        let destinationData = destinationImage.data;
+
+        let kernelOffset = 1;
+        let kernelData  = [ [1 / 9, 1 / 9, 1 / 9],
+                            [1 / 9, 1 / 9, 1 / 9],
+                            [1 / 9, 1 / 9, 1 / 9] ];
+        
+
+        for (let row = 0 + kernelOffset; row < height - 1 - kernelOffset; row++) {
+          for (let column = 0 + kernelOffset; column < width - 1 - kernelOffset; column++) {
+
+              for (let channel = 0; channel < 4; channel++) {
+
+                let currentIndex = (row * width) + (column * 4) + channel;
+
+                let sum = 0;
+                for (let i = 0; i < kernelData.length; i++) {
+                  for (let j = 0; j < kernelData[i].length; j++) {
+
+                  }
+                }
+
+              }
+          }
+        }
       }
     });
   </script>
