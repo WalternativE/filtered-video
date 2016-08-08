@@ -159,12 +159,12 @@ university exercise
 
         let outputBuffer = [];
 
+        let currentIndex = 0;
         for (let row = 0 + kernelOffset; row < height - 1 - kernelOffset; row++) {
           for (let column = 0 + kernelOffset; column < width - 1 - kernelOffset; column++) {
-
+            
             for (let channel = 0; channel < 3; channel++) {
-
-              let currentIndex = (row * width) + (column * 4) + channel;
+              currentIndex = (row * width) + (column * 4) + channel;
 
               let oneUpIndex = currentIndex - width;
               let oneDownIndex = currentIndex + width;
@@ -185,16 +185,15 @@ university exercise
                 i++;
               }
 
-              outputBuffer.push(this.clip(sum));
+              destinationData[currentIndex] = this.clip(sum);
             }
 
-            outputBuffer.push(0xff);
+            destinationData[currentIndex + 1] = 0xff;
           }
         }
 
-        for (let i = 0 + kernelOffset; i < outputBuffer.length; i++) {
-          destinationData[i] = outputBuffer[i];
-        }
+        console.log("data len: " + destinationData.length);
+        console.log("ind: " + currentIndex);
 
         destinationImage.data = destinationData;
         destinationContext.putImageData(destinationImage, 0, 0);
