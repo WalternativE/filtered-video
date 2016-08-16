@@ -153,21 +153,23 @@ university exercise
         let destinationData = destinationImage.data;
 
         let kernelOffset = 1;
-        let kernelData  = [ [1 / 9, 1 / 9, 1 / 9],
-                            [1 / 9, 1 / 9 , 1 / 9],
-                            [1 / 9, 1 / 9, 1 / 9] ];
+        // let kernelData  = [ [1 / 9, 1 / 9, 1 / 9],
+        //                     [1 / 9, 1 / 9 , 1 / 9],
+        //                     [1 / 9, 1 / 9, 1 / 9] ];
 
-        let outputBuffer = [];
+        let kernelData  = [ [-1, -2, -1],
+                            [0, 0, 0],
+                            [1, 2, 1] ];
 
         let currentIndex = 0;
-        for (let row = 0 + kernelOffset; row < height - 1 - kernelOffset; row++) {
-          for (let column = 0 + kernelOffset; column < width - 1 - kernelOffset; column++) {
+        for (let row = 0 + kernelOffset; row < (height - 1 - kernelOffset); row++) {
+          for (let column = 0 + kernelOffset; column < (width - 1 - kernelOffset); column++) {
             
             for (let channel = 0; channel < 3; channel++) {
-              currentIndex = (row * width) + (column * 4) + channel;
+              currentIndex = (row * width * 4) + (column * 4) + channel;
 
-              let oneUpIndex = currentIndex - width;
-              let oneDownIndex = currentIndex + width;
+              let oneUpIndex = currentIndex - width * 4;
+              let oneDownIndex = currentIndex + width * 4;
 
               let indices = [oneUpIndex, currentIndex, oneDownIndex];
 
@@ -191,9 +193,6 @@ university exercise
             destinationData[currentIndex + 1] = 0xff;
           }
         }
-
-        console.log("data len: " + destinationData.length);
-        console.log("ind: " + currentIndex);
 
         destinationImage.data = destinationData;
         destinationContext.putImageData(destinationImage, 0, 0);
