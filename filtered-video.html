@@ -27,42 +27,44 @@ university exercise
 
       <div class="layout vertical">
         <div class="layout horizontal">
-          <paper-input label="val"></paper-input>
-          <paper-input label="val"></paper-input>
-          <paper-input label="val"></paper-input>
-          <paper-input label="val"></paper-input>
-          <paper-input label="val"></paper-input>
+          <paper-input label="val" value="{{in00}}"></paper-input>
+          <paper-input label="val" value="{{in01}}"></paper-input>
+          <paper-input label="val" value="{{in02}}"></paper-input>
+          <paper-input label="val" value="{{in03}}"></paper-input>
+          <paper-input label="val" value="{{in04}}"></paper-input>
         </div>
         <div class="layout horizontal">
-          <paper-input label="val"></paper-input>
-          <paper-input label="val"></paper-input>
-          <paper-input label="val"></paper-input>
-          <paper-input label="val"></paper-input>
-          <paper-input label="val"></paper-input>
+          <paper-input label="val" value="{{in10}}"></paper-input>
+          <paper-input label="val" value="{{in11}}"></paper-input>
+          <paper-input label="val" value="{{in12}}"></paper-input>
+          <paper-input label="val" value="{{in13}}"></paper-input>
+          <paper-input label="val" value="{{in14}}"></paper-input>
         </div>
         <div class="layout horizontal">
-          <paper-input label="val"></paper-input>
-          <paper-input label="val"></paper-input>
-          <paper-input label="val"></paper-input>
-          <paper-input label="val"></paper-input>
-          <paper-input label="val"></paper-input>
+          <paper-input label="val" value="{{in20}}"></paper-input>
+          <paper-input label="val" value="{{in21}}"></paper-input>
+          <paper-input label="val" value="{{in22}}"></paper-input>
+          <paper-input label="val" value="{{in23}}"></paper-input>
+          <paper-input label="val" value="{{in24}}"></paper-input>
         </div>
         <div class="layout horizontal">
-          <paper-input label="val"></paper-input>
-          <paper-input label="val"></paper-input>
-          <paper-input label="val"></paper-input>
-          <paper-input label="val"></paper-input>
-          <paper-input label="val"></paper-input>
+          <paper-input label="val" value="{{in30}}"></paper-input>
+          <paper-input label="val" value="{{in31}}"></paper-input>
+          <paper-input label="val" value="{{in32}}"></paper-input>
+          <paper-input label="val" value="{{in33}}"></paper-input>
+          <paper-input label="val" value="{{in34}}"></paper-input>
         </div>
         <div class="layout horizontal">
-          <paper-input label="val"></paper-input>
-          <paper-input label="val"></paper-input>
-          <paper-input label="val"></paper-input>
-          <paper-input label="val"></paper-input>
-          <paper-input label="val"></paper-input>
+          <paper-input label="val" value="{{in40}}"></paper-input>
+          <paper-input label="val" value="{{in41}}"></paper-input>
+          <paper-input label="val" value="{{in42}}"></paper-input>
+          <paper-input label="val" value="{{in43}}"></paper-input>
+          <paper-input label="val" value="{{in44}}"></paper-input>
         </div>
         <paper-input label="Scale"></paper-input>
       </div>
+
+      <paper-button raised on-tap="loadKernel">Load Kernel</paper-button>
     </div>
   </template>
 
@@ -70,11 +72,40 @@ university exercise
     Polymer({
       is: 'filtered-video',
 
-      blaCounter: 0,
+      in00: null,
+      in01: null,
+      in02: null,
+      in03: null,
+      in04: null,
 
-      handleTap: function() {
-        console.log("Tap handel event!")
-      },
+      in10: null,
+      in11: null,
+      in12: null,
+      in13: null,
+      in14: null,
+
+      in20: null,
+      in21: null,
+      in22: null,
+      in23: null,
+      in24: null,
+
+      in30: null,
+      in31: null,
+      in32: null,
+      in33: null,
+      in34: null,
+
+      in40: null,
+      in41: null,
+      in42: null,
+      in43: null,
+      in44: null,
+
+      kernelBuffer: null,
+
+      kernelOffset: null,
+      kernelData: null,
 
       handleInputChange: function(event) {
         let file;
@@ -95,7 +126,6 @@ university exercise
       },
 
       handlePlay: function() {
-        console.log("play!");
 
         let video = this.$.player;
 
@@ -116,24 +146,6 @@ university exercise
           
           context.drawImage(video, 0, 0, width, height);
 
-          // let rawImage = context.getImageData(0, 0, width, height);
-          // let imageData = rawImage.data;
-
-          // for(let i = 0; i <imageData.length; i += 4) {
-          //   let r = imageData[i];
-          //   let g = imageData[i+1];
-          //   let b = imageData[i+2];
-          //   let brightness = (3*r + 4*g + b) >>> 3;
-
-          //   imageData[i] = brightness;
-          //   imageData[i+1] = brightness;
-          //   imageData[i+2] = brightness;
-          // }
-          // rawImage.data = imageData;
-
-          // let contextMirror = localContext.$.mirror.getContext('2d');
-          // contextMirror.putImageData(rawImage, 0, 0);
-
           localContext.applyFilter();
 
           setTimeout(localContext.draw, 20, localContext, video, context, width, height);
@@ -152,54 +164,103 @@ university exercise
         let sourceData = sourceImage.data;
         let destinationData = destinationImage.data;
 
-        let kernelOffset = 1;
-        // let kernelData  = [ [1 / 9, 1 / 9, 1 / 9],
-        //                     [1 / 9, 1 / 9 , 1 / 9],
-        //                     [1 / 9, 1 / 9, 1 / 9] ];
+        if (this.kernelData !== null && this.kernelOffset !== null) {
 
-        let kernelData  = [ [-1, -2, -1],
-                            [0, 0, 0],
-                            [1, 2, 1] ];
+          let currentIndex = 0;
+          for (let row = 0 + this.kernelOffset; row < (height - 1 - this.kernelOffset); row++) {
+            for (let column = 0 + this.kernelOffset; column < (width - 1 - this.kernelOffset); column++) {
+              
+              for (let channel = 0; channel < 3; channel++) {
+                currentIndex = (row * width * 4) + (column * 4) + channel;
 
-        let currentIndex = 0;
-        for (let row = 0 + kernelOffset; row < (height - 1 - kernelOffset); row++) {
-          for (let column = 0 + kernelOffset; column < (width - 1 - kernelOffset); column++) {
-            
-            for (let channel = 0; channel < 3; channel++) {
-              currentIndex = (row * width * 4) + (column * 4) + channel;
+                let oneUpIndex = currentIndex - width * 4;
+                let oneDownIndex = currentIndex + width * 4;
 
-              let oneUpIndex = currentIndex - width * 4;
-              let oneDownIndex = currentIndex + width * 4;
+                let indices = [oneUpIndex, currentIndex, oneDownIndex];
 
-              let indices = [oneUpIndex, currentIndex, oneDownIndex];
+                let sum = 0;
+                let i = 0;
 
-              let sum = 0;
-              let i = 0;
+                let len = this.kernelData[i].length;
+                for (let j = 0; j < len; j++) {
+                  index = indices[i];
 
-              let len = kernelData[i].length;
-              for (let j = 0; j < len; j++) {
-                index = indices[i];
+                  sum += sourceData[index - 4] * this.kernelData[i][j];
+                  sum += sourceData[index] * this.kernelData[i][j];
+                  sum += sourceData[index + 4] * this.kernelData[i][j];
 
-                sum += sourceData[index - 4] * kernelData[i][j];
-                sum += sourceData[index] * kernelData[i][j];
-                sum += sourceData[index + 4] * kernelData[i][j];
+                  i++;
+                }
 
-                i++;
+                destinationData[currentIndex] = this.clip(sum);
               }
 
-              destinationData[currentIndex] = this.clip(sum);
+              destinationData[currentIndex + 1] = 0xff;
             }
-
-            destinationData[currentIndex + 1] = 0xff;
           }
+
+          destinationImage.data = destinationData;
         }
 
-        destinationImage.data = destinationData;
         destinationContext.putImageData(destinationImage, 0, 0);
       },
 
       clip: function(value) {
         return Math.floor(Math.min(Math.max(value, 0), 255));
+      },
+
+      loadKernel: function() {
+
+        this.loadIntoKernelBuffer();
+
+        let windowSizeOffset = 0;
+
+        if (this.in00 != null && this.in00 != "" && this.in00 != undefined) {g
+
+          console.log("big kernel");
+
+          this.kernelOffset = 2;
+          windowSizeOffset = 0;
+
+          this.kernelData = [
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0]
+          ];
+
+        } else if (this.in11 != null && this.in11 != "" && this.in11 != undefined) {
+
+          console.log("small kernel");
+
+          this.kernelOffset = 1;
+          windowSizeOffset = 1;
+
+          this.kernelData = [
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, 0]
+          ];
+        }
+
+        for (let i = 0 + windowSizeOffset; i < 5 - windowSizeOffset; i++) {
+          for (let j = 0 + windowSizeOffset; j < 5 - windowSizeOffset; j++) {
+
+            this.kernelData[i - windowSizeOffset][j - windowSizeOffset] = this.kernelBuffer[i][j];
+          }
+        }
+      },
+
+      loadIntoKernelBuffer: function() {
+        
+        this.kernelBuffer = new Array(
+          [this.in00, this.in01, this.in02, this.in03, this.in04],
+          [this.in10, this.in11, this.in12, this.in13, this.in14],
+          [this.in20, this.in21, this.in22, this.in23, this.in24],
+          [this.in30, this.in31, this.in32, this.in33, this.in34],
+          [this.in40, this.in41, this.in42, this.in43, this.in44]
+        );
+
       }
     });
   </script>
