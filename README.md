@@ -2,9 +2,18 @@
 
 university exercise
 
+## In case you have no tooling at all
+
+First install node (LTS should do) - node and npm should be on the path.
+
+```
+$ npm install -g bower
+$ bower install
+```
+
 ## Install the Polymer-CLI
 
-First, make sure you have the [Polymer CLI](https://www.npmjs.com/package/polymer-cli) installed. Then run `polymer serve` to serve your application locally.
+Make sure you have the [Polymer CLI](https://www.npmjs.com/package/polymer-cli) installed. Then run `polymer serve` to serve your application locally.
 
 ## Viewing Your Application
 
@@ -12,27 +21,17 @@ First, make sure you have the [Polymer CLI](https://www.npmjs.com/package/polyme
 $ polymer serve
 ```
 
-## Building Your Application
+## Further stuff
 
-```
-$ polymer build
-```
+This is not a piece on polymer best practice (there is a lot of room for improvement).
 
-This will create a `build/` folder with `bundled/` and `unbundled/` sub-folders
-containing a bundled (Vulcanized) and unbundled builds, both run through HTML,
-CSS, and JS optimizers.
+The app works in modern Chrome and Firefox Browsers (Edge 14 doesn't work - didn't test Safari 
+but I suspect it won't work).
 
-You can serve the built versions by giving `polymer serve` a folder to serve
-from:
+The easiest way to test the component (other than using it in your project) is to navigate to
+[this location](http://localhost:8080/components/filtered-video/demo/) (if your running 
+instance served via the polymer cli uses another port you have to adjust the URL).
 
-```
-$ polymer serve build/bundled
-```
-
-## Running Tests
-
-```
-$ polymer test
-```
-
-Your application is already set up to be tested via [web-component-tester](https://github.com/Polymer/web-component-tester). Run `polymer test` to run your application's test suite locally.
+The app should cope with the video formats recognized by the respective browser.
+The filter panel is not extremely hardened (only normal 3x3 or 5x5 kernels are
+supported - hard validation is not implemented).

@@ -61,7 +61,7 @@ university exercise
           <paper-input label="val" value="{{in43}}"></paper-input>
           <paper-input label="val" value="{{in44}}"></paper-input>
         </div>
-        <paper-input label="Scale"></paper-input>
+        <paper-input label="Scale" value="{{scale}}"></paper-input>
       </div>
 
       <paper-button raised on-tap="loadKernel">Load Kernel</paper-button>
@@ -101,6 +101,8 @@ university exercise
       in42: null,
       in43: null,
       in44: null,
+
+      scale: null,
 
       kernelBuffer: null,
 
@@ -173,10 +175,7 @@ university exercise
               for (let channel = 0; channel < 3; channel++) {
                 currentIndex = (row * width * 4) + (column * 4) + channel;
 
-                let oneUpIndex = currentIndex - width * 4;
-                let oneDownIndex = currentIndex + width * 4;
-
-                let indices = [oneUpIndex, currentIndex, oneDownIndex];
+                let indices = this.theHackathonSolution(currentIndex, width);
 
                 let sum = 0;
                 let i = 0;
@@ -188,6 +187,12 @@ university exercise
                   sum += sourceData[index - 4] * this.kernelData[i][j];
                   sum += sourceData[index] * this.kernelData[i][j];
                   sum += sourceData[index + 4] * this.kernelData[i][j];
+
+                  // yeah could be cleaner
+                  if (this.kernelOffset > 1) {
+                    sum += sourceData[index - 4 * 2] * this.kernelData[i][j];
+                    sum += sourceData[index + 4 * 2] * this.kernelData[i][j];
+                  }
 
                   i++;
                 }
@@ -205,6 +210,20 @@ university exercise
         destinationContext.putImageData(destinationImage, 0, 0);
       },
 
+      theHackathonSolution: function(currentIndex, width) {
+        let oneUpIndex = currentIndex - width * 4;
+        let oneDownIndex = currentIndex + width * 4;
+
+        let twoUpIndex = currentIndex - width * 4 * 2;
+        let twoDownIndex = currentIndex + width * 4 * 2;
+
+        if (this.kernelOffset === 1) {
+          return [oneUpIndex, currentIndex, oneDownIndex];
+        } else {
+          return [twoUpIndex, oneUpIndex, currentIndex, oneDownIndex, twoDownIndex];
+        }
+      },
+
       clip: function(value) {
         return Math.floor(Math.min(Math.max(value, 0), 255));
       },
@@ -215,7 +234,7 @@ university exercise
 
         let windowSizeOffset = 0;
 
-        if (this.in00 != null && this.in00 != "" && this.in00 != undefined) {g
+        if (this.in00 != null && this.in00 != "" && this.in00 != undefined) {
 
           console.log("big kernel");
 
@@ -226,12 +245,11 @@ university exercise
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0]
           ];
 
         } else if (this.in11 != null && this.in11 != "" && this.in11 != undefined) {
-
-          console.log("small kernel");
 
           this.kernelOffset = 1;
           windowSizeOffset = 1;
@@ -241,12 +259,22 @@ university exercise
             [0, 0, 0],
             [0, 0, 0]
           ];
+          
+        } else {
+          // only those two cases are supported
+          console.log("this configuration is not supported");
+          return;
         }
+
+      let scaleFactor = 1;
+      if (this.scale && this.scale != "")
+        scaleFactor = this.scale;
 
         for (let i = 0 + windowSizeOffset; i < 5 - windowSizeOffset; i++) {
           for (let j = 0 + windowSizeOffset; j < 5 - windowSizeOffset; j++) {
 
-            this.kernelData[i - windowSizeOffset][j - windowSizeOffset] = this.kernelBuffer[i][j];
+            this.kernelData[i - windowSizeOffset][j - windowSizeOffset] = (this.kernelBuffer[i][j] / scaleFactor);
+
           }
         }
       },
